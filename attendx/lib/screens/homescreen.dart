@@ -5,7 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:attendx/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:attendx/providers/user_provider.dart';
-import 'package:attendx/providers/supabase_provider.dart';
+
 import 'package:attendx/providers/leaves_provider.dart';
 import 'package:attendx/providers/attendance_provider.dart';
 import 'package:attendx/services/database_service.dart';
@@ -77,307 +77,325 @@ class _HomescreenState extends ConsumerState<Homescreen> {
     return Scaffold(
       backgroundColor: AppColors.bgDarkStart,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Welcome back,",
-                          style: TextStyle(
-                            color: AppColors.grey,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          userData.name,
-                          style: TextStyle(
-                            color: AppColors.black,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.black.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                        border: Border.all(
-                          color: AppColors.grey.withValues(alpha: 0.1),
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.notifications_outlined,
-                        color: AppColors.black,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Overview Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text(
-                  "Overview",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.black,
-                    letterSpacing: -0.3,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Main Stat Card
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.black,
-                    borderRadius: BorderRadius.circular(24.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.black.withValues(alpha: 0.2),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
+        child: RefreshIndicator(
+          color: AppColors.yellow,
+          backgroundColor: AppColors.black,
+          onRefresh: () async {
+            await Future.wait([
+              ref.refresh(leavesProvider.future),
+              ref.refresh(attendanceProvider.future),
+            ]);
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.white.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.analytics_rounded,
-                                  color: AppColors.yellow,
-                                  size: 14,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  "Total Attendance",
-                                  style: TextStyle(
-                                    color: AppColors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 20),
                           Text(
-                            attendanceAsync.when(
-                              data: (count) => count.toString(),
-                              loading: () => "-",
-                              error: (err, stack) => "?",
-                            ),
-                            style: TextStyle(
-                              color: AppColors.white,
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              height: 1,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Workshops Attended",
+                            "Welcome back,",
                             style: TextStyle(
                               color: AppColors.grey,
-                              fontSize: 14,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            userData.name,
+                            style: TextStyle(
+                              color: AppColors.black,
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: -0.5,
                             ),
                           ),
                         ],
                       ),
                       Container(
-                        width: 80,
-                        height: 80,
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppColors.yellow,
+                          color: AppColors.white,
                           shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                          border: Border.all(
+                            color: AppColors.grey.withValues(alpha: 0.1),
+                          ),
                         ),
                         child: Icon(
-                          Icons.workspace_premium_rounded,
+                          Icons.notifications_outlined,
                           color: AppColors.black,
-                          size: 40,
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 32),
-
-              // Quick Actions
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text(
-                  "Quick Actions",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.black,
-                    letterSpacing: -0.3,
+                // Overview Section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Text(
+                    "Overview",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.black,
+                      letterSpacing: -0.3,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildActionCard(
-                        icon: Icons.qr_code_scanner_rounded,
-                        title: "Attendance",
-                        subtitle: "Mark presence",
-                        color: AppColors.yellow,
-                        iconColor: AppColors.black,
-                        onTap: () {
-                          if (widget.onNavigate != null) {
-                            widget.onNavigate!(1);
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const AttendanceScreen(),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildActionCard(
-                        icon: Icons.history_rounded,
-                        title: "History",
-                        subtitle: "View records",
-                        color: AppColors.white,
-                        iconColor: AppColors.black,
-                        onTap: () {
-                          if (widget.onNavigate != null) {
-                            widget.onNavigate!(3);
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ProfileScreen(),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Leave History Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Leave History",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.black,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: _showApplyLeaveDialog,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.yellow,
-                        foregroundColor: AppColors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                // Main Stat Card
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24.0),
+                    decoration: BoxDecoration(
+                      color: AppColors.black,
+                      borderRadius: BorderRadius.circular(24.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.black.withValues(alpha: 0.2),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        " Apply Leave",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: leavesAsync.when(
-                  data: (leaves) {
-                    if (leaves.isEmpty) {
-                      return const Center(child: Text("No leave history found."));
-                    }
-                    return Column(
-                      children: leaves.map((leave) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0),
-                          child: _buildLeaveHistoryCard(
-                            title: leave.leaveTitle,
-                            date: "${leave.createdAt.day} ${_getMonthName(leave.createdAt.month)}",
-                            status: leave.leaveStatus,
-                            statusColor: _getStatusColor(leave.leaveStatus),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.white.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.analytics_rounded,
+                                    color: AppColors.yellow,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    "Total Attendance",
+                                    style: TextStyle(
+                                      color: AppColors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Text(
+                              attendanceAsync.when(
+                                data: (count) => count.toString(),
+                                loading: () => "-",
+                                error: (err, stack) => "?",
+                              ),
+                              style: TextStyle(
+                                color: AppColors.white,
+                                fontSize: 48,
+                                fontWeight: FontWeight.bold,
+                                height: 1,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "Workshops Attended",
+                              style: TextStyle(
+                                color: AppColors.grey,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: AppColors.yellow,
+                            shape: BoxShape.circle,
                           ),
-                        );
-                      }).toList(),
-                    );
-                  },
-                  loading: () => const Center(child: CircularProgressIndicator(color: AppColors.yellow)),
-                  error: (err, stack) => Center(child: Text("Error loading leaves: $err")),
+                          child: Icon(
+                            Icons.workspace_premium_rounded,
+                            color: AppColors.black,
+                            size: 40,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 32),
-            ],
+
+                const SizedBox(height: 32),
+
+                // Quick Actions
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Text(
+                    "Quick Actions",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.black,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _buildActionCard(
+                          icon: Icons.qr_code_scanner_rounded,
+                          title: "Attendance",
+                          subtitle: "Mark presence",
+                          color: AppColors.yellow,
+                          iconColor: AppColors.black,
+                          onTap: () {
+                            if (widget.onNavigate != null) {
+                              widget.onNavigate!(1);
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const AttendanceScreen(),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildActionCard(
+                          icon: Icons.history_rounded,
+                          title: "History",
+                          subtitle: "View records",
+                          color: AppColors.white,
+                          iconColor: AppColors.black,
+                          onTap: () {
+                            if (widget.onNavigate != null) {
+                              widget.onNavigate!(3);
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const ProfileScreen(),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // Leave History Section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Leave History",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.black,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: _showApplyLeaveDialog,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.yellow,
+                          foregroundColor: AppColors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          " Apply Leave",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: leavesAsync.when(
+                    data: (leaves) {
+                      if (leaves.isEmpty) {
+                        return const Center(
+                          child: Text("No leave history found."),
+                        );
+                      }
+                      return Column(
+                        children: leaves.map((leave) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: _buildLeaveHistoryCard(
+                              title: leave.leaveTitle,
+                              date:
+                                  "${leave.createdAt.day} ${_getMonthName(leave.createdAt.month)}",
+                              status: leave.leaveStatus,
+                              statusColor: _getStatusColor(leave.leaveStatus),
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                    loading: () => const Center(
+                      child: CircularProgressIndicator(color: AppColors.yellow),
+                    ),
+                    error: (err, stack) =>
+                        Center(child: Text("Error loading leaves: $err")),
+                  ),
+                ),
+                const SizedBox(height: 32),
+              ],
+            ),
           ),
         ),
       ),
@@ -482,14 +500,21 @@ class _HomescreenState extends ConsumerState<Homescreen> {
                       labelText: "Leave Heading",
                       labelStyle: const TextStyle(color: AppColors.grey),
                       hintText: "e.g., Sick Leave",
-                      hintStyle: TextStyle(color: AppColors.grey.withValues(alpha: 0.5)),
+                      hintStyle: TextStyle(
+                        color: AppColors.grey.withValues(alpha: 0.5),
+                      ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.yellow, width: 2),
+                        borderSide: const BorderSide(
+                          color: AppColors.yellow,
+                          width: 2,
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: AppColors.grey.withValues(alpha: 0.3)),
+                        borderSide: BorderSide(
+                          color: AppColors.grey.withValues(alpha: 0.3),
+                        ),
                       ),
                     ),
                   ),
@@ -502,14 +527,21 @@ class _HomescreenState extends ConsumerState<Homescreen> {
                       labelText: "Description",
                       labelStyle: const TextStyle(color: AppColors.grey),
                       hintText: "Reason for leave...",
-                      hintStyle: TextStyle(color: AppColors.grey.withValues(alpha: 0.5)),
+                      hintStyle: TextStyle(
+                        color: AppColors.grey.withValues(alpha: 0.5),
+                      ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.yellow, width: 2),
+                        borderSide: const BorderSide(
+                          color: AppColors.yellow,
+                          width: 2,
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: AppColors.grey.withValues(alpha: 0.3)),
+                        borderSide: BorderSide(
+                          color: AppColors.grey.withValues(alpha: 0.3),
+                        ),
                       ),
                     ),
                   ),
@@ -551,11 +583,13 @@ class _HomescreenState extends ConsumerState<Homescreen> {
                           });
 
                           try {
-                            final databaseService = ref.read(databaseServiceProvider);
+                            final databaseService = ref.read(
+                              databaseServiceProvider,
+                            );
                             final userData = ref.read(userProvider);
 
                             final newLeave = Leave(
-                              id: 0, // id will be auto-generated by db
+                              id: 0, // DB handles this primary key
                               employeeName: userData.name,
                               leaveTitle: titleController.text.trim(),
                               leaveDescription: descriptionController.text.trim(),
@@ -569,7 +603,9 @@ class _HomescreenState extends ConsumerState<Homescreen> {
                               Navigator.of(context).pop();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: const Text("Leave applied successfully!"),
+                                  content: const Text(
+                                    "Leave applied successfully!",
+                                  ),
                                   backgroundColor: Colors.green,
                                 ),
                               );
@@ -599,7 +635,10 @@ class _HomescreenState extends ConsumerState<Homescreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
                   ),
                   child: isSubmitting
                       ? const SizedBox(
@@ -621,7 +660,20 @@ class _HomescreenState extends ConsumerState<Homescreen> {
   }
 
   String _getMonthName(int month) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[month - 1];
   }
 

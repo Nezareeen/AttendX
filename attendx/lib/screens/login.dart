@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../components/BottomNavigation.dart';
+import '../components/bottom_navigation.dart';
 import '../theme/app_theme.dart';
 import '../services/database_service.dart';
 
@@ -17,7 +17,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _employeeIDController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
-  final bool _rememberMe = false;
   bool _isLoading = false;
   final _storage = const FlutterSecureStorage();
 

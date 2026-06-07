@@ -1,4 +1,4 @@
-import 'package:attendx/screens/SettingScreen.dart';
+import 'package:attendx/screens/setting_screen.dart';
 import 'package:attendx/screens/chat_screen.dart';
 import 'package:attendx/screens/attendance_screen.dart';
 import 'package:attendx/screens/homescreen.dart';

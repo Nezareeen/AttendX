@@ -1,5 +1,5 @@
-import 'package:attendx/components/BottomNavigation.dart';
-import 'package:attendx/screens/SettingScreen.dart';
+import 'package:attendx/components/bottom_navigation.dart';
+import 'package:attendx/screens/setting_screen.dart';
 import 'package:attendx/screens/attendance_screen.dart';
 import 'package:attendx/screens/homescreen.dart';
 import 'package:attendx/screens/login.dart';
