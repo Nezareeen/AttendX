@@ -7,11 +7,12 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:attendx/main.dart';
 
 void main() {
   testWidgets('App renders smoke test', (WidgetTester tester) async {
-    await tester.pumpWidget(const MainApp());
+    await tester.pumpWidget(const ProviderScope(child: MainApp(isLoggedIn: false)));
     await tester.pump();
     // Basic smoke test - app should render without errors
   });

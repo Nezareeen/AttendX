@@ -1,15 +1,39 @@
 import 'package:attendx/screens/SettingScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:attendx/theme/app_theme.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final Function(int)? onNavigate;
+
+  const ProfileScreen({super.key, this.onNavigate});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String _username = "Loading...";
+  String _role = "Loading...";
+  final _storage = const FlutterSecureStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final name = await _storage.read(key: 'EmployeeName');
+    final role = await _storage.read(key: 'role');
+    if (mounted) {
+      setState(() {
+        _username = name ?? "Employee";
+        _role = role ?? "User";
+      });
+    }
+  }
+
   final List<Map<String, dynamic>> _workshops = [
     {'title': 'Narayana Workshop', 'date': 'Oct 12, 2023', 'status': 'Present'},
     {
@@ -67,7 +91,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: AppColors.grey.withOpacity(0.2), height: 1.0),
+          child: Container(
+            color: AppColors.grey.withValues(alpha: 0.2),
+            height: 1.0,
+          ),
         ),
       ),
       body: SafeArea(
@@ -84,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     radius: 36,
                     backgroundColor: AppColors.yellow,
                     child: Text(
-                      "T",
+                      _username[0].toUpperCase(),
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -98,7 +125,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Tushar",
+                          _username,
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -107,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "Trainer",
+                          _role,
                           style: TextStyle(fontSize: 16, color: AppColors.grey),
                         ),
                       ],
@@ -116,12 +143,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   IconButton(
                     icon: const Icon(Icons.settings, color: AppColors.black),
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Settingscreen(),
-                        ),
-                      );
+                      if (widget.onNavigate != null) {
+                        widget.onNavigate!(4);
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Settingscreen(),
+                          ),
+                        );
+                      }
                     },
                   ),
                 ],
@@ -130,7 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               width: double.infinity,
               height: 1.0,
-              color: AppColors.grey.withOpacity(0.2),
+              color: AppColors.grey.withValues(alpha: 0.2),
             ),
             const Padding(
               padding: EdgeInsets.fromLTRB(20, 24, 20, 8),
@@ -162,13 +193,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       borderRadius: BorderRadius.circular(16.0),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.black.withOpacity(0.04),
+                          color: AppColors.black.withValues(alpha: 0.04),
                           blurRadius: 24,
                           offset: const Offset(0, 8),
                         ),
                       ],
                       border: Border.all(
-                        color: AppColors.grey.withOpacity(0.15),
+                        color: AppColors.grey.withValues(alpha: 0.15),
                       ),
                     ),
                     child: Material(
@@ -185,8 +216,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 height: 56,
                                 decoration: BoxDecoration(
                                   color: isPresent
-                                      ? AppColors.yellow.withOpacity(0.2)
-                                      : AppColors.grey.withOpacity(0.1),
+                                      ? AppColors.yellow.withValues(alpha: 0.2)
+                                      : AppColors.grey.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(
@@ -251,7 +282,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   border: Border.all(
                                     color: isPresent
                                         ? AppColors.black
-                                        : AppColors.grey.withOpacity(0.5),
+                                        : AppColors.grey.withValues(alpha: 0.5),
                                   ),
                                 ),
                                 child: Text(

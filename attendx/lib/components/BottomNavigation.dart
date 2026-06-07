@@ -1,4 +1,5 @@
-import 'package:attendx/screens/WorkshopScreen.dart';
+import 'package:attendx/screens/SettingScreen.dart';
+import 'package:attendx/screens/chat_screen.dart';
 import 'package:attendx/screens/attendance_screen.dart';
 import 'package:attendx/screens/homescreen.dart';
 import 'package:attendx/screens/profile_screen.dart';
@@ -6,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 class CustomBottomNavBar extends StatefulWidget {
-  const CustomBottomNavBar({Key? key}) : super(key: key);
+  const CustomBottomNavBar({super.key});
 
   @override
   State<CustomBottomNavBar> createState() => _CustomBottomNavBarState();
@@ -17,24 +18,37 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
 
   final List<IconData> _icons = [
     Icons.home_rounded,
-    Icons.qr_code_scanner_rounded,
-    Icons.work_rounded,
+    Icons.bookmark_rounded,
+    Icons.chat_bubble_rounded,
     Icons.person_rounded,
   ];
-  final List<String> _labels = ['Home', 'Attendance', 'Workshops', 'Profile'];
-
-  final List<Widget> _pages = [
-    Homescreen(),
-    AttendanceScreen(),
-    Workshopscreen(),
-    ProfileScreen(),
-  ];
+  final List<String> _labels = ['Home', 'Attendance', 'Chat', 'Profile'];
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      Homescreen(
+        onNavigate: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+      ),
+      const AttendanceScreen(),
+      const ChatScreen(),
+      ProfileScreen(
+        onNavigate: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+      ),
+      const Settingscreen(),
+    ];
+
     return Scaffold(
       backgroundColor: AppColors.bgDarkStart,
-      body: _pages[_selectedIndex],
+      body: pages[_selectedIndex],
       bottomNavigationBar: _buildBottomBar(),
     );
   }
@@ -45,12 +59,14 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
         color: AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.04),
+            color: AppColors.black.withValues(alpha: 0.04),
             blurRadius: 24,
             offset: const Offset(0, -8),
           ),
         ],
-        border: Border(top: BorderSide(color: AppColors.grey.withOpacity(0.1))),
+        border: Border(
+          top: BorderSide(color: AppColors.grey.withValues(alpha: 0.1)),
+        ),
       ),
       child: SafeArea(
         child: Padding(
@@ -72,7 +88,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       onTap: () => setState(() => _selectedIndex = index),
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 1000),
         curve: Curves.easeOutQuint,
         padding: EdgeInsets.symmetric(
           horizontal: isSelected ? 20 : 12,
@@ -87,7 +103,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
           children: [
             Icon(
               _icons[index],
-              color: isSelected ? AppColors.yellow : AppColors.grey,
+              color: isSelected ? AppColors.yellow : AppColors.black,
               size: 26,
             ),
             if (isSelected)

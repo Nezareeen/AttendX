@@ -37,7 +37,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: AppColors.grey.withOpacity(0.2), height: 1.0),
+          child: Container(
+            color: AppColors.grey.withValues(alpha: 0.2),
+            height: 1.0,
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -60,10 +63,12 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.grey.withOpacity(0.2)),
+                border: Border.all(
+                  color: AppColors.grey.withValues(alpha: 0.2),
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.black.withOpacity(0.02),
+                    color: AppColors.black.withValues(alpha: 0.02),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -118,10 +123,12 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.grey.withOpacity(0.2)),
+                  border: Border.all(
+                    color: AppColors.grey.withValues(alpha: 0.2),
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.black.withOpacity(0.02),
+                      color: AppColors.black.withValues(alpha: 0.02),
                       blurRadius: 15,
                       offset: const Offset(0, 5),
                     ),
@@ -153,7 +160,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                 size: 20,
                               ),
                             ),
-                          )
+                          ),
                         ],
                       )
                     : Column(
@@ -162,7 +169,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: AppColors.yellow.withOpacity(0.2),
+                              color: AppColors.yellow.withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -201,14 +208,18 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.grey.withOpacity(0.2)),
+                border: Border.all(
+                  color: AppColors.grey.withValues(alpha: 0.2),
+                ),
               ),
               child: Column(
                 children: [
                   _buildLocationRow(
                     icon: Icons.person_pin_circle_rounded,
                     title: "Your Location",
-                    subtitle: _isSelfieTaken ? "12.9716° N, 77.5946° E" : "Waiting for selfie...",
+                    subtitle: _isSelfieTaken
+                        ? "12.9716° N, 77.5946° E"
+                        : "Waiting for selfie...",
                     isVerified: _isSelfieTaken,
                   ),
                   const Padding(
@@ -227,31 +238,44 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                   _buildLocationRow(
                     icon: Icons.location_on_rounded,
                     title: "Workshop Location",
-                    subtitle: _selectedWorkshop != null ? "12.9716° N, 77.5946° E" : "Select a workshop first",
+                    subtitle: _selectedWorkshop != null
+                        ? "12.9716° N, 77.5946° E"
+                        : "Select a workshop first",
                     isVerified: _selectedWorkshop != null,
                   ),
                   const SizedBox(height: 20),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: _isLocationMatched
                           ? AppColors.black
-                          : AppColors.grey.withOpacity(0.1),
+                          : AppColors.grey.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          _isLocationMatched ? Icons.verified_user_rounded : Icons.info_outline_rounded,
-                          color: _isLocationMatched ? AppColors.yellow : AppColors.grey,
+                          _isLocationMatched
+                              ? Icons.verified_user_rounded
+                              : Icons.info_outline_rounded,
+                          color: _isLocationMatched
+                              ? AppColors.yellow
+                              : AppColors.grey,
                           size: 20,
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          _isLocationMatched ? "Location Matched Successfully" : "Location match pending",
+                          _isLocationMatched
+                              ? "Location Matched Successfully"
+                              : "Location match pending",
                           style: TextStyle(
-                            color: _isLocationMatched ? AppColors.white : AppColors.grey,
+                            color: _isLocationMatched
+                                ? AppColors.white
+                                : AppColors.grey,
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
                           ),
@@ -269,14 +293,19 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: (_isSelfieTaken && _isLocationMatched && _selectedWorkshop != null)
+                onPressed:
+                    (_isSelfieTaken &&
+                        _isLocationMatched &&
+                        _selectedWorkshop != null)
                     ? () {
                         // Submit attendance logic
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.yellow,
-                  disabledBackgroundColor: AppColors.grey.withOpacity(0.3),
+                  disabledBackgroundColor: AppColors.grey.withValues(
+                    alpha: 0.3,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -285,7 +314,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 child: Text(
                   "Submit Attendance",
                   style: TextStyle(
-                    color: (_isSelfieTaken && _isLocationMatched && _selectedWorkshop != null)
+                    color:
+                        (_isSelfieTaken &&
+                            _isLocationMatched &&
+                            _selectedWorkshop != null)
                         ? AppColors.black
                         : AppColors.white,
                     fontSize: 16,
@@ -329,10 +361,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               ),
               Text(
                 subtitle,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.grey,
-                ),
+                style: const TextStyle(fontSize: 12, color: AppColors.grey),
               ),
             ],
           ),

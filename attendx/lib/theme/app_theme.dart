@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Base colors
-  static const Color yellow = Color(0xFFFFC107); 
-  static const Color black = Color(0xFF000000); 
-  static const Color white = Color(0xFFFFFFFF); 
-  static const Color grey = Color(0xFF9E9E9E); 
+  static const Color yellow = Color(0xFFFFC107);
+  static const Color black = Color(0xFF000000);
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color grey = Color(0xFF9E9E9E);
 
   // Primary colors
-  static const Color primaryStart = yellow; 
-  static const Color primaryEnd = yellow;   
-  static const Color accentPink = grey;   
-  static const Color accentOrange = grey;  
+  static const Color primaryStart = yellow;
+  static const Color primaryEnd = yellow;
+  static const Color accentPink = grey;
+  static const Color accentOrange = grey;
 
   // Background colors
   static const Color bgDarkStart = white;
@@ -25,8 +25,8 @@ class AppColors {
 
   // Text colors
   static const Color textPrimary = black;
-  static const Color textSecondary = grey;  
-  static const Color textMuted = grey;      
+  static const Color textSecondary = grey;
+  static const Color textMuted = grey;
 
   // Status colors
   static const Color success = black;
