@@ -84,6 +84,7 @@ class Attendance {
   final String locationStatus;
   final String attendance;
   final DateTime createdAt;
+  final String? imageUrl;
 
   Attendance({
     required this.id,
@@ -91,6 +92,7 @@ class Attendance {
     required this.locationStatus,
     required this.attendance,
     required this.createdAt,
+    this.imageUrl,
   });
 
   factory Attendance.fromJson(Map<String, dynamic> json) {
@@ -100,6 +102,7 @@ class Attendance {
       locationStatus: json['location_status'] ?? '',
       attendance: json['attendance'] ?? '',
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
+      imageUrl: json['image_url'],
     );
   }
 
@@ -110,6 +113,7 @@ class Attendance {
       'location_status': locationStatus,
       'attendance': attendance,
       'created_at': createdAt.toIso8601String(),
+      'image_url': imageUrl,
     };
   }
 }
