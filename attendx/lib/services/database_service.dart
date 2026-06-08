@@ -39,7 +39,7 @@ class DatabaseService {
     await _supabase.from('leaves').insert({
       'employeeName': leave.employeeName,
       'leave_title': leave.leaveTitle,
-      'leave_decription': leave.leaveDescription,
+      'leave_description': leave.leaveDescription,
       'leave_status': leave.leaveStatus,
       if (leave.fromDate != null) 'from_date': leave.fromDate!.toIso8601String().split('T').first,
       if (leave.toDate != null) 'to_date': leave.toDate!.toIso8601String().split('T').first,

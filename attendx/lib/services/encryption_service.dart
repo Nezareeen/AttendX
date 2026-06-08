@@ -1,8 +1,8 @@
 import 'package:encrypt/encrypt.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:attendx/env/env.dart';
 
 class EncryptionService {
-  static final String _keyString = dotenv.env['CHAT_ENCRYPTION_KEY'] ?? 'w9z\$C&F)J@NcRfUjXn2r5u8x/A?D*G-K'; // Fallback for dev just in case
+  static final String _keyString = Env.chatEncryptionKey.isNotEmpty ? Env.chatEncryptionKey : 'w9z\$C&F)J@NcRfUjXn2r5u8x/A?D*G-K'; // Fallback for dev just in case
   static final Key _key = Key.fromUtf8(_keyString);
   // We use a fixed IV or random IV. For AES-CBC, random IV is recommended.
   // But wait, if we use a random IV, we need to prepend it to the ciphertext.

@@ -137,10 +137,10 @@ class Leave {
 
   factory Leave.fromJson(Map<String, dynamic> json) {
     return Leave(
-      id: json['id'],
+      id: json['id'] as int,
       employeeName: json['employeeName'] ?? '',
       leaveTitle: json['leave_title'] ?? '',
-      leaveDescription: json['leave_decription'] ?? '', // matching db typo
+      leaveDescription: json['leave_description'] ?? '',
       leaveStatus: json['leave_status'] ?? 'Pending',
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
       fromDate: json['from_date'] != null ? DateTime.parse(json['from_date']) : null,
@@ -153,7 +153,7 @@ class Leave {
       'id': id,
       'employeeName': employeeName,
       'leave_title': leaveTitle,
-      'leave_decription': leaveDescription,
+      'leave_description': leaveDescription,
       'leave_status': leaveStatus,
       'created_at': createdAt.toIso8601String(),
       if (fromDate != null) 'from_date': fromDate!.toIso8601String().split('T').first,

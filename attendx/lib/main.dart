@@ -9,14 +9,24 @@ import 'package:attendx/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:attendx/env/env.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+
+  final supabaseUrl = Env.supabaseUrl;
+  final supabaseAnonKey = Env.supabaseAnonKey;
+
+  if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
+    throw Exception(
+      "Missing Supabase credentials. Ensure SUPABASE_URL and SUPABASE_ANON_KEY are present in the .env file "
+      "before running build_runner.",
+    );
+  }
+
   await Supabase.initialize(
-    url: 'https://sjnwccolqqvvofwegqtu.supabase.co',
-    anonKey: 'sb_publishable_l9wDSd7-Y_9DVvOgaUHLMw_DRLlxz51',
+    url: supabaseUrl,
+    anonKey: supabaseAnonKey,
     authOptions: FlutterAuthClientOptions(localStorage: SecureLocalStorage()),
   );
 
