@@ -3,6 +3,7 @@ import '../models/database_models.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/supabase_provider.dart';
 import 'encryption_service.dart';
+import 'dart:typed_data';
 
 final chatServiceProvider = Provider<ChatService>((ref) {
   final supabaseClient = ref.watch(supabaseProvider);
@@ -59,12 +60,34 @@ class ChatService {
     return messages;
   }
 
+  // Upload a file for chat attachment
+  Future<String?> uploadFile(String fileName, Uint8List fileBytes, String mimeType) async {
+    try {
+      final String path = '${DateTime.now().millisecondsSinceEpoch}_$fileName';
+      
+      await _supabase.storage.from('chat_attachments').uploadBinary(
+        path,
+        fileBytes,
+        fileOptions: FileOptions(contentType: mimeType),
+      );
+
+      final String publicUrl = _supabase.storage.from('chat_attachments').getPublicUrl(path);
+      return publicUrl;
+    } catch (e) {
+      print('Error uploading file: $e');
+      return null;
+    }
+  }
+
   // Send a message
   Future<void> sendMessage({
     required int senderId,
     int? receiverId,
     required bool isGroup,
     required String content,
+    String? attachmentUrl,
+    String? attachmentType,
+    String? attachmentName,
   }) async {
     final encryptedContent = EncryptionService.encryptMessage(content);
     await _supabase.from('messages').insert({
@@ -72,6 +95,9 @@ class ChatService {
       'receiver_id': receiverId,
       'is_group': isGroup,
       'content': encryptedContent,
+      if (attachmentUrl != null) 'attachment_url': attachmentUrl,
+      if (attachmentType != null) 'attachment_type': attachmentType,
+      if (attachmentName != null) 'attachment_name': attachmentName,
     });
   }
 }

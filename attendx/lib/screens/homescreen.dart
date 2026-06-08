@@ -373,12 +373,17 @@ class _HomescreenState extends ConsumerState<Homescreen> {
                       }
                       return Column(
                         children: leaves.map((leave) {
+                          String dateDisplay;
+                          if (leave.fromDate != null && leave.toDate != null) {
+                            dateDisplay = "${leave.fromDate!.day} ${_getMonthName(leave.fromDate!.month)} — ${leave.toDate!.day} ${_getMonthName(leave.toDate!.month)}";
+                          } else {
+                            dateDisplay = "${leave.createdAt.day} ${_getMonthName(leave.createdAt.month)}";
+                          }
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
                             child: _buildLeaveHistoryCard(
                               title: leave.leaveTitle,
-                              date:
-                                  "${leave.createdAt.day} ${_getMonthName(leave.createdAt.month)}",
+                              date: dateDisplay,
                               status: leave.leaveStatus,
                               statusColor: _getStatusColor(leave.leaveStatus),
                             ),
@@ -470,6 +475,49 @@ class _HomescreenState extends ConsumerState<Homescreen> {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
     bool isSubmitting = false;
+    DateTime? fromDate;
+    DateTime? toDate;
+
+    Future<void> pickDate(BuildContext ctx, bool isFrom, StateSetter setDialogState) async {
+      final now = DateTime.now();
+      final picked = await showDatePicker(
+        context: ctx,
+        initialDate: isFrom ? (fromDate ?? now) : (toDate ?? fromDate ?? now),
+        firstDate: isFrom ? now : (fromDate ?? now),
+        lastDate: DateTime(now.year + 1),
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: const ColorScheme.light(
+                primary: AppColors.yellow,
+                onPrimary: AppColors.black,
+                surface: AppColors.white,
+                onSurface: AppColors.black,
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+      if (picked != null) {
+        setDialogState(() {
+          if (isFrom) {
+            fromDate = picked;
+            // Reset toDate if it's before the new fromDate
+            if (toDate != null && toDate!.isBefore(picked)) {
+              toDate = null;
+            }
+          } else {
+            toDate = picked;
+          }
+        });
+      }
+    }
+
+    String formatDate(DateTime? date) {
+      if (date == null) return 'Select date';
+      return '${date.day} ${_getMonthName(date.month)} ${date.year}';
+    }
 
     await showDialog(
       context: context,
@@ -490,62 +538,184 @@ class _HomescreenState extends ConsumerState<Homescreen> {
                   color: AppColors.black,
                 ),
               ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: titleController,
-                    cursorColor: AppColors.black,
-                    decoration: InputDecoration(
-                      labelText: "Leave Heading",
-                      labelStyle: const TextStyle(color: AppColors.grey),
-                      hintText: "e.g., Sick Leave",
-                      hintStyle: TextStyle(
-                        color: AppColors.grey.withValues(alpha: 0.5),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: AppColors.yellow,
-                          width: 2,
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: titleController,
+                      cursorColor: AppColors.black,
+                      decoration: InputDecoration(
+                        labelText: "Leave Heading",
+                        labelStyle: const TextStyle(color: AppColors.grey),
+                        hintText: "e.g., Sick Leave",
+                        hintStyle: TextStyle(
+                          color: AppColors.grey.withValues(alpha: 0.5),
                         ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: AppColors.grey.withValues(alpha: 0.3),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: AppColors.yellow,
+                            width: 2,
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: descriptionController,
-                    maxLines: 3,
-                    cursorColor: AppColors.black,
-                    decoration: InputDecoration(
-                      labelText: "Description",
-                      labelStyle: const TextStyle(color: AppColors.grey),
-                      hintText: "Reason for leave...",
-                      hintStyle: TextStyle(
-                        color: AppColors.grey.withValues(alpha: 0.5),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: AppColors.yellow,
-                          width: 2,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: AppColors.grey.withValues(alpha: 0.3),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.grey.withValues(alpha: 0.3),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    // From Date and To Date row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => pickDate(context, true, setDialogState),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: fromDate != null
+                                      ? AppColors.yellow
+                                      : AppColors.grey.withValues(alpha: 0.3),
+                                  width: fromDate != null ? 2 : 1,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "From",
+                                    style: TextStyle(
+                                      color: AppColors.grey,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_today_rounded,
+                                        size: 14,
+                                        color: fromDate != null ? AppColors.black : AppColors.grey,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          formatDate(fromDate),
+                                          style: TextStyle(
+                                            color: fromDate != null ? AppColors.black : AppColors.grey.withValues(alpha: 0.5),
+                                            fontSize: 13,
+                                            fontWeight: fromDate != null ? FontWeight.w600 : FontWeight.normal,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              if (fromDate == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text("Please select From date first."),
+                                    backgroundColor: AppColors.error,
+                                  ),
+                                );
+                                return;
+                              }
+                              pickDate(context, false, setDialogState);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: toDate != null
+                                      ? AppColors.yellow
+                                      : AppColors.grey.withValues(alpha: 0.3),
+                                  width: toDate != null ? 2 : 1,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "To",
+                                    style: TextStyle(
+                                      color: AppColors.grey,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_today_rounded,
+                                        size: 14,
+                                        color: toDate != null ? AppColors.black : AppColors.grey,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          formatDate(toDate),
+                                          style: TextStyle(
+                                            color: toDate != null ? AppColors.black : AppColors.grey.withValues(alpha: 0.5),
+                                            fontSize: 13,
+                                            fontWeight: toDate != null ? FontWeight.w600 : FontWeight.normal,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: descriptionController,
+                      maxLines: 3,
+                      cursorColor: AppColors.black,
+                      decoration: InputDecoration(
+                        labelText: "Description",
+                        labelStyle: const TextStyle(color: AppColors.grey),
+                        hintText: "Reason for leave...",
+                        hintStyle: TextStyle(
+                          color: AppColors.grey.withValues(alpha: 0.5),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: AppColors.yellow,
+                            width: 2,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.grey.withValues(alpha: 0.3),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
@@ -578,6 +748,16 @@ class _HomescreenState extends ConsumerState<Homescreen> {
                             return;
                           }
 
+                          if (fromDate == null || toDate == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text("Please select From and To dates."),
+                                backgroundColor: AppColors.error,
+                              ),
+                            );
+                            return;
+                          }
+
                           setDialogState(() {
                             isSubmitting = true;
                           });
@@ -594,7 +774,9 @@ class _HomescreenState extends ConsumerState<Homescreen> {
                               leaveTitle: titleController.text.trim(),
                               leaveDescription: descriptionController.text.trim(),
                               leaveStatus: 'Pending',
-                              createdAt: DateTime.now(), // DB typically handles this
+                              createdAt: DateTime.now(),
+                              fromDate: fromDate,
+                              toDate: toDate,
                             );
 
                             await databaseService.submitLeaveRequest(newLeave);

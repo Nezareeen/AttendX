@@ -121,6 +121,8 @@ class Leave {
   final String leaveDescription;
   final String leaveStatus;
   final DateTime createdAt;
+  final DateTime? fromDate;
+  final DateTime? toDate;
 
   Leave({
     required this.id,
@@ -129,6 +131,8 @@ class Leave {
     required this.leaveDescription,
     required this.leaveStatus,
     required this.createdAt,
+    this.fromDate,
+    this.toDate,
   });
 
   factory Leave.fromJson(Map<String, dynamic> json) {
@@ -139,6 +143,8 @@ class Leave {
       leaveDescription: json['leave_decription'] ?? '', // matching db typo
       leaveStatus: json['leave_status'] ?? 'Pending',
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
+      fromDate: json['from_date'] != null ? DateTime.parse(json['from_date']) : null,
+      toDate: json['to_date'] != null ? DateTime.parse(json['to_date']) : null,
     );
   }
 
@@ -150,6 +156,8 @@ class Leave {
       'leave_decription': leaveDescription,
       'leave_status': leaveStatus,
       'created_at': createdAt.toIso8601String(),
+      if (fromDate != null) 'from_date': fromDate!.toIso8601String().split('T').first,
+      if (toDate != null) 'to_date': toDate!.toIso8601String().split('T').first,
     };
   }
 }
@@ -206,6 +214,9 @@ class Message {
   final String content;
   final DateTime createdAt;
   final Employee? sender;
+  final String? attachmentUrl;
+  final String? attachmentType;
+  final String? attachmentName;
 
   Message({
     required this.id,
@@ -215,6 +226,9 @@ class Message {
     required this.content,
     required this.createdAt,
     this.sender,
+    this.attachmentUrl,
+    this.attachmentType,
+    this.attachmentName,
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
@@ -226,6 +240,9 @@ class Message {
       content: json['content'] ?? '',
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
       sender: json['employees'] != null ? Employee.fromJson(json['employees']) : null,
+      attachmentUrl: json['attachment_url'],
+      attachmentType: json['attachment_type'],
+      attachmentName: json['attachment_name'],
     );
   }
 
@@ -237,6 +254,9 @@ class Message {
       'is_group': isGroup,
       'content': content,
       'created_at': createdAt.toIso8601String(),
+      if (attachmentUrl != null) 'attachment_url': attachmentUrl,
+      if (attachmentType != null) 'attachment_type': attachmentType,
+      if (attachmentName != null) 'attachment_name': attachmentName,
     };
   }
 }

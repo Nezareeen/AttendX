@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:file_picker/file_picker.dart';
 import '../theme/app_theme.dart';
 import '../models/database_models.dart';
 import '../providers/chat_provider.dart';
@@ -24,6 +25,70 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   final TextEditingController _messageController = TextEditingController();
   final List<Message> _optimisticMessages = [];
   final Set<String> _failedMessageIds = {};
+  bool _isUploadingFile = false;
+
+  Future<void> _pickAndSendFile(int currentUserId) async {
+    final result = await FilePicker.platform.pickFiles(withData: true);
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.first;
+    if (file.bytes == null) return;
+
+    setState(() {
+      _isUploadingFile = true;
+    });
+
+    final chatService = ref.read(chatServiceProvider);
+    
+    try {
+      String mimeType = 'application/octet-stream';
+      if (file.extension != null) {
+        final ext = file.extension!.toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(ext)) {
+          mimeType = 'image/$ext';
+        } else if (ext == 'pdf') {
+          mimeType = 'application/pdf';
+        } else if (['doc', 'docx'].contains(ext)) {
+          mimeType = 'application/msword';
+        }
+      }
+
+      final url = await chatService.uploadFile(file.name, file.bytes!, mimeType);
+      
+      if (url != null) {
+        final content = _messageController.text.trim();
+        _messageController.clear();
+        
+        await chatService.sendMessage(
+          senderId: currentUserId,
+          receiverId: widget.isGroup ? null : widget.otherUser?.id,
+          isGroup: widget.isGroup,
+          content: content.isEmpty ? 'File attached' : content,
+          attachmentUrl: url,
+          attachmentType: mimeType,
+          attachmentName: file.name,
+        );
+
+        if (widget.isGroup) {
+          ref.invalidate(groupMessagesProvider);
+        } else if (widget.otherUser != null) {
+          ref.invalidate(directMessagesProvider(widget.otherUser!.id));
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to upload file.')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploadingFile = false;
+        });
+      }
+    }
+  }
 
   Future<void> _sendMessage(int currentUserId) async {
     final content = _messageController.text.trim();
@@ -205,6 +270,54 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
               ),
               const SizedBox(height: 2),
             ],
+            if (message.attachmentUrl != null) ...[
+              if (message.attachmentType?.startsWith('image/') == true)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    message.attachmentUrl!,
+                    height: 150,
+                    width: 200,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return const SizedBox(
+                        height: 150,
+                        width: 200,
+                        child: Center(child: CircularProgressIndicator(color: AppColors.black)),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) => const SizedBox(
+                      height: 150,
+                      width: 200,
+                      child: Center(child: Icon(Icons.error)),
+                    ),
+                  ),
+                )
+              else
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.white.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.insert_drive_file, color: AppColors.black, size: 20),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          message.attachmentName ?? 'Attachment',
+                          style: const TextStyle(color: AppColors.black, decoration: TextDecoration.underline, fontSize: 13),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 4),
+            ],
             Text(
               message.content,
               style: const TextStyle(
@@ -265,11 +378,32 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
               ),
               const SizedBox(width: 8),
               GestureDetector(
-                onTap: () => _sendMessage(currentUserId),
+                onTap: _isUploadingFile ? null : () => _pickAndSendFile(currentUserId),
                 child: Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(
-                    color: AppColors.yellow,
+                  decoration: BoxDecoration(
+                    color: AppColors.grey.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: _isUploadingFile 
+                    ? const SizedBox(
+                        width: 20, height: 20, 
+                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.black)
+                      )
+                    : const Icon(
+                        Icons.attach_file,
+                        color: AppColors.black,
+                        size: 20,
+                      ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: _isUploadingFile ? null : () => _sendMessage(currentUserId),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _isUploadingFile ? AppColors.grey : AppColors.yellow,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(

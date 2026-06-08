@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.starfetch.attendance.attendx"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
