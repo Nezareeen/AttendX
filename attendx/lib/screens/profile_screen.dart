@@ -17,9 +17,9 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   String _username = "Loading...";
-  String _role = "Loading...";
+  String _designation = "Loading...";
   final _storage = const FlutterSecureStorage();
-  
+
   List<Attendance> _attendanceHistory = [];
   bool _isLoadingHistory = true;
 
@@ -32,19 +32,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> _loadUserData() async {
     try {
       final name = await _storage.read(key: 'EmployeeName');
-      final role = await _storage.read(key: 'role');
+      final designation = await _storage.read(key: 'designation');
       final empIdStr = await _storage.read(key: 'employeeId');
-      
+
       if (mounted) {
         setState(() {
           _username = name ?? "Employee";
-          _role = role ?? "User";
+          _designation = designation ?? "Employee";
         });
       }
-      
+
       if (empIdStr != null) {
         final empId = int.parse(empIdStr);
-        final history = await ref.read(databaseServiceProvider).getAttendanceHistory(empId);
+        final history = await ref
+            .read(databaseServiceProvider)
+            .getAttendanceHistory(empId);
         if (mounted) {
           setState(() {
             _attendanceHistory = history;
@@ -79,7 +81,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   String _formatDate(DateTime date) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[date.month - 1]} ${date.day.toString().padLeft(2, '0')}, ${date.year}';
   }
@@ -89,6 +102,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Scaffold(
       backgroundColor: AppColors.bgDarkStart,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0,
         backgroundColor: AppColors.white,
         title: const Text(
@@ -145,8 +159,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          _role,
-                          style: const TextStyle(fontSize: 16, color: AppColors.grey),
+                          _designation,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: AppColors.grey,
+                          ),
                         ),
                       ],
                     ),
@@ -186,21 +203,35 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             ),
             Expanded(
-              child: _isLoadingHistory 
-                ? const Center(child: CircularProgressIndicator(color: AppColors.black))
-                : _attendanceHistory.isEmpty
+              child: _isLoadingHistory
+                  ? const Center(
+                      child: CircularProgressIndicator(color: AppColors.black),
+                    )
+                  : _attendanceHistory.isEmpty
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.history_rounded, size: 48, color: AppColors.grey.withValues(alpha: 0.5)),
+                          Icon(
+                            Icons.history_rounded,
+                            size: 48,
+                            color: AppColors.grey.withValues(alpha: 0.5),
+                          ),
                           const SizedBox(height: 16),
-                          Text("No attendance history found", style: TextStyle(color: AppColors.grey)),
+                          Text(
+                            "No attendance history found",
+                            style: TextStyle(color: AppColors.grey),
+                          ),
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: _onRefresh,
-                            style: ElevatedButton.styleFrom(backgroundColor: AppColors.yellow),
-                            child: const Text("Refresh", style: TextStyle(color: AppColors.black)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.yellow,
+                            ),
+                            child: const Text(
+                              "Refresh",
+                              style: TextStyle(color: AppColors.black),
+                            ),
                           ),
                         ],
                       ),
@@ -227,7 +258,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               borderRadius: BorderRadius.circular(16.0),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.black.withValues(alpha: 0.04),
+                                  color: AppColors.black.withValues(
+                                    alpha: 0.04,
+                                  ),
                                   blurRadius: 24,
                                   offset: const Offset(0, 8),
                                 ),
@@ -250,9 +283,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                         height: 56,
                                         decoration: BoxDecoration(
                                           color: isPresent
-                                              ? AppColors.yellow.withValues(alpha: 0.2)
-                                              : AppColors.grey.withValues(alpha: 0.1),
-                                          borderRadius: BorderRadius.circular(12),
+                                              ? AppColors.yellow.withValues(
+                                                  alpha: 0.2,
+                                                )
+                                              : AppColors.grey.withValues(
+                                                  alpha: 0.1,
+                                                ),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                         child: Icon(
                                           isPresent
@@ -267,7 +306,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       const SizedBox(width: 16),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               attendance.workshopName,
@@ -290,7 +330,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                 ),
                                                 const SizedBox(width: 4),
                                                 Text(
-                                                  _formatDate(attendance.createdAt),
+                                                  _formatDate(
+                                                    attendance.createdAt,
+                                                  ),
                                                   style: const TextStyle(
                                                     color: AppColors.grey,
                                                     fontSize: 13,
@@ -312,11 +354,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                           color: isPresent
                                               ? AppColors.black
                                               : AppColors.white,
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
                                           border: Border.all(
                                             color: isPresent
                                                 ? AppColors.black
-                                                : AppColors.grey.withValues(alpha: 0.5),
+                                                : AppColors.grey.withValues(
+                                                    alpha: 0.5,
+                                                  ),
                                           ),
                                         ),
                                         child: Text(

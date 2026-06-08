@@ -9,8 +9,7 @@ class SecureLocalStorage extends LocalStorage {
 
   @override
   Future<String?> accessToken() async {
-    _storage.read(key: 'supabase.session');
-    return null;
+    return await _storage.read(key: 'supabase.session');
   }
 
   @override

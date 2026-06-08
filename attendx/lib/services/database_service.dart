@@ -14,20 +14,6 @@ class DatabaseService {
 
   DatabaseService(this._supabase);
 
-  Future<Employee?> loginEmployee(int id, String password) async {
-    final response = await _supabase
-        .from('employees')
-        .select()
-        .eq('id', id)
-        .eq('password', password)
-        .maybeSingle();
-
-    if (response != null) {
-      return Employee.fromJson(response);
-    }
-    return null;
-  }
-
   Future<int> getAttendanceCount(String employeeId) async {
     final response = await _supabase
         .from('attendance')

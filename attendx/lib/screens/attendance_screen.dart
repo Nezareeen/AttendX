@@ -176,6 +176,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     return Scaffold(
       backgroundColor: AppColors.bgDarkStart,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0,
         backgroundColor: AppColors.white,
         title: const Text(

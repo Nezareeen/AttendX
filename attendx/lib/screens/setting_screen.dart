@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:attendx/theme/app_theme.dart';
 import 'package:attendx/screens/login.dart';
+import 'package:attendx/services/auth_service.dart';
 
 class Settingscreen extends StatefulWidget {
   const Settingscreen({super.key});
@@ -11,8 +12,6 @@ class Settingscreen extends StatefulWidget {
 }
 
 class _SettingscreenState extends State<Settingscreen> {
-  final _storage = const FlutterSecureStorage();
-
   Future<void> _logout() async {
     final bool? confirm = await showDialog<bool>(
       context: context,
@@ -63,8 +62,9 @@ class _SettingscreenState extends State<Settingscreen> {
 
     if (confirm != true) return;
 
-    // Clear the secure storage
-    await _storage.deleteAll();
+    // Invalidate server session and clear local storage
+    final authService = AuthService(Supabase.instance.client);
+    await authService.logout();
 
     if (!mounted) return;
     
@@ -80,6 +80,7 @@ class _SettingscreenState extends State<Settingscreen> {
     return Scaffold(
       backgroundColor: AppColors.bgDarkStart,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0,
         backgroundColor: AppColors.white,
         title: const Text(

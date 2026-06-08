@@ -5,7 +5,6 @@ class Employee {
   final String designation;
   final DateTime createdAt;
   final String role;
-  final String password;
 
   Employee({
     required this.id,
@@ -14,7 +13,6 @@ class Employee {
     required this.designation,
     required this.createdAt,
     required this.role,
-    required this.password,
   });
 
   factory Employee.fromJson(Map<String, dynamic> json) {
@@ -25,7 +23,6 @@ class Employee {
       designation: json['designation'] ?? '',
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
       role: json['role'] ?? 'User',
-      password: json['password'] ?? '',
     );
   }
 
@@ -37,7 +34,6 @@ class Employee {
       'designation': designation,
       'created_at': createdAt.toIso8601String(),
       'role': role,
-      'password': password,
     };
   }
 }
@@ -197,6 +193,49 @@ class Inventory {
       'category': category,
       'stock': stock,
       'status': status,
+      'created_at': createdAt.toIso8601String(),
+    };
+  }
+}
+
+class Message {
+  final String id;
+  final int senderId;
+  final int? receiverId;
+  final bool isGroup;
+  final String content;
+  final DateTime createdAt;
+  final Employee? sender;
+
+  Message({
+    required this.id,
+    required this.senderId,
+    this.receiverId,
+    required this.isGroup,
+    required this.content,
+    required this.createdAt,
+    this.sender,
+  });
+
+  factory Message.fromJson(Map<String, dynamic> json) {
+    return Message(
+      id: json['id'] ?? '',
+      senderId: json['sender_id'] ?? 0,
+      receiverId: json['receiver_id'],
+      isGroup: json['is_group'] ?? false,
+      content: json['content'] ?? '',
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
+      sender: json['employees'] != null ? Employee.fromJson(json['employees']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'sender_id': senderId,
+      'receiver_id': receiverId,
+      'is_group': isGroup,
+      'content': content,
       'created_at': createdAt.toIso8601String(),
     };
   }

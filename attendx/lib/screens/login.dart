@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../components/bottom_navigation.dart';
 import '../theme/app_theme.dart';
-import '../services/database_service.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,7 +17,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
-  final _storage = const FlutterSecureStorage();
 
   @override
   void dispose() {
@@ -53,21 +51,10 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final databaseService = DatabaseService(Supabase.instance.client);
-      final employee = await databaseService.loginEmployee(parsedId, password);
+      final authService = AuthService(Supabase.instance.client);
+      final result = await authService.login(parsedId, password);
 
-      if (employee != null) {
-        // Save auth state
-        await _storage.write(
-          key: 'employeeId',
-          value: employee.id.toString(),
-        );
-        await _storage.write(
-          key: 'EmployeeName',
-          value: employee.employeeName,
-        );
-        await _storage.write(key: 'role', value: employee.role);
-
+      if (result.success) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -87,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text("Invalid Employee ID or Password"),
+            content: Text(result.error ?? "Invalid Employee ID or Password"),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(

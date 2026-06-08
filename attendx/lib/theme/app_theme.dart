@@ -6,6 +6,12 @@ class AppColors {
   static const Color black = Color(0xFF000000);
   static const Color white = Color(0xFFFFFFFF);
   static const Color grey = Color(0xFF9E9E9E);
+  
+  // WhatsApp theme colors
+  static const Color waTealGreen = Color(0xFF075E54);
+  static const Color waLightGreen = Color(0xFF25D366);
+  static const Color waOutgoingBubble = Color(0xFFDCF8C6);
+  static const Color waChatBackground = Color(0xFFECE5DD);
 
   // Primary colors
   static const Color primaryStart = yellow;
